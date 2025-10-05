@@ -688,7 +688,7 @@ jobs:
       - name: cuda-toolkit
         uses: Jimver/cuda-toolkit@v0.2.28
         with:
-          cuda: ${{ matrix.cibw-build-cuda-version }}
+          cuda: ${{ matrix.cuda-version }}
     
       - name: Checkout Apex
         uses: actions/checkout@v4
