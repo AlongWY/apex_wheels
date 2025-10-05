@@ -1,4 +1,4 @@
-name: Build manylinx wheels and deploy
+name: Build windows wheels and deploy
 
 permissions:
   contents: write
@@ -11,8 +11,8 @@ on:
 
 jobs:
   build_wheels:
-    name: Build Wheel
-    runs-on: ubuntu-latest
+    name: Build Windows Wheel
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -685,16 +685,10 @@ jobs:
             cibw-build-cuda-compat-version: "12-9"
 
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+      - name: cuda-toolkit
+        uses: Jimver/cuda-toolkit@v0.2.28
         with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          cuda: ${{ matrix.cibw-build-cuda-version }}
     
       - name: Checkout Apex
         uses: actions/checkout@v4
@@ -733,20 +727,13 @@ jobs:
             python -m pip install -U pip setuptools wheel packaging auditwheel-symbols ninja cmake numpy &&
             python -m pip install --no-cache-dir torch==${{ matrix.torch-version }} --index-url https://download.pytorch.org/whl/cu${{ matrix.cibw-build-torch-cuda-version }}
           CIBW_ENVIRONMENT: >
-            CUDA_HOME="/usr/local/cuda-${{ matrix.cibw-build-cuda-version }}" 
-            CUDACXX="/usr/local/cuda-${{ matrix.cibw-build-cuda-version }}/bin/nvcc" 
-            CFLAGS="-I/usr/include" 
-            LDFLAGS="-L/usr/lib" 
-            AUDITWHEEL_PLAT="manylinux_2_28_$(uname -m)" 
             TORCH_CUDA_ARCH_LIST="${{ matrix.arch }}" 
             MAX_JOBS=1
             APEX_CPP_EXT=1
             APEX_CUDA_EXT=1
             APEX_ALL_CONTRIB_EXT=1
-          CIBW_SKIP: "*musllinux*"
           CIBW_BUILD_FRONTEND: "pip; args: --no-build-isolation"
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w /tmp/cibuildwheel/repaired_wheel {wheel} --exclude libc10.so --exclude libc10* --exclude libtorch.so --exclude libtorch* --exclude libcu* --exclude libnccl*"
-          
+
       - name: Log Built Wheels
         run: |
           wheel_name=$(ls dist/*whl | xargs -n 1 basename)
