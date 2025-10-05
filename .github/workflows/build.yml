@@ -701,16 +701,16 @@ jobs:
         with:
           repository: NVIDIA/apex
           submodules: recursive
-          ref: 4bdecd06b3c4b2c0a8fb6603829a8f9f05a42b49
+          ref: 5c8860f1dc79f9edc3c1ba4050fe841207834564
 
       - name: Checkout utils
         uses: actions/checkout@v4
         with:
           path: build_scripts
 
-      - name: Apply Patch
-        run: |
-          git apply --ignore-space-change --ignore-whitespace build_scripts/patches/0001-GROUPNORM.patch
+      # - name: Apply Patch
+      #   run: |
+      #     git apply --ignore-space-change --ignore-whitespace build_scripts/patches/0001-GROUPNORM.patch
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -729,7 +729,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw-build }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.cibw-build-image }}
           CIBW_BEFORE_BUILD_LINUX: >
-            sed -i "s/version=\"0.1\"/version=\"0.1+2025.08.15torch${{ matrix.torch-version }}cu${{ matrix.cibw-build-torch-cuda-version }}\"/g" /project/setup.py &&
+            sed -i "s/version=\"0.1\"/version=\"0.1+2025.09+torch${{ matrix.torch-version }}cu${{ matrix.cibw-build-torch-cuda-version }}\"/g" /project/setup.py &&
             python -m pip install -U pip setuptools wheel packaging auditwheel-symbols ninja cmake numpy &&
             python -m pip install --no-cache-dir torch==${{ matrix.torch-version }} --index-url https://download.pytorch.org/whl/cu${{ matrix.cibw-build-torch-cuda-version }}
           CIBW_ENVIRONMENT: >
